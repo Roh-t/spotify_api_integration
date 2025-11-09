@@ -6,10 +6,10 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
-app.use(cors({
-  origin: 'https://frontend-spotify-mu.vercel.app',
-  methods: ['GET', 'PUT']
-}));
+// app.use(cors({
+//   origin: 'https://frontend-spotify-mu.vercel.app',
+//   methods: ['GET', 'PUT']
+// }));
 
 app.use(express.json());
 
