@@ -1,23 +1,18 @@
 import express from 'express';
-import cors from 'cors';
 import SpotifyWebApi from 'spotify-web-api-node';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
 const app = express();
-// app.use(cors({
-//   origin: 'https://frontend-spotify-mu.vercel.app',
-//   methods: ['GET', 'PUT']
-// }));
 
 app.use(express.json());
 
-// Spotify API setup
+// Spotify Api setup
 const spotifyApi = new SpotifyWebApi({
   clientId: process.env.SPOTIFY_CLIENT_ID,
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-  redirectUri: process.env.SPOTIFY_REDIRECT_URI, // e.g., https://yourportfolio.com/spotify/callback
+  redirectUri: process.env.SPOTIFY_REDIRECT_URI,
 });
 
 // Middleware to refresh access token if expired
@@ -25,29 +20,27 @@ const refreshAccessToken = async () => {
   try {
     const data = await spotifyApi.refreshAccessToken();
     spotifyApi.setAccessToken(data.body.access_token);
-    // Optionally store in DB or env
   } catch (error) {
-    console.error('Error refreshing token:', error);
+    console.error('refreshing Error token:', error);
   }
 };
 
-// Auth route: Redirect to Spotify for authorization
+// Redirect user to Spotify to log in and allow access
 app.get('/spotify/auth', (req, res) => {
   const scopes = ['user-top-read', 'user-read-currently-playing', 'user-modify-playback-state', 'user-follow-read'];
   const authorizeURL = spotifyApi.createAuthorizeURL(scopes);
   res.redirect(authorizeURL);
 });
 
-// Callback route: Exchange code for tokens
+// After Spotify login, we come here to get the tokens
 app.get('/spotify/callback', async (req, res) => {
   const { code } = req.query;
   try {
     const data = await spotifyApi.authorizationCodeGrant(code);
     spotifyApi.setAccessToken(data.body.access_token);
     spotifyApi.setRefreshToken(data.body.refresh_token);
-    // Store tokens securely (e.g., in MongoDB or env for demo)
-    // For demo, assume env vars are updated manually or via DB
-    res.json({ message: 'Authenticated! You can now use /spotify.' });
+
+    res.json({ message: ' Login successful! You can now use /spotify.' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -94,15 +87,34 @@ app.get('/spotify', async (req, res) => {
 });
 
 // PUT /spotify/pause: Stop the currently playing song
+// app.put('/spotify/pause', async (req, res) => {
+//   try {
+//     await refreshAccessToken();
+//     await spotifyApi.pause();
+//     res.json({ message: 'Playback paused.' });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
+
+
+// -----------------
+
+
 app.put('/spotify/pause', async (req, res) => {
   try {
     await refreshAccessToken();
     await spotifyApi.pause();
     res.json({ message: 'Playback paused.' });
   } catch (error) {
+    console.log("Pause error:", error.body || error);
     res.status(500).json({ error: error.message });
   }
 });
+
+// --------------------------------
+
+
 
 // PUT /spotify/play/:trackId: Start playing a top track
 app.put('/spotify/play/:trackId', async (req, res) => {
