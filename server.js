@@ -102,7 +102,7 @@ app.get('/spotify/pause', async (req, res) => {
 
 
 // PUT /spotify/play/:trackId: Start playing a top track
-app.put('/spotify/play/:trackId', async (req, res) => {
+app.get('/spotify/play/:trackId', async (req, res) => {
   try {
     await refreshAccessToken();
     const track = await spotifyApi.getTrack(req.params.trackId);
