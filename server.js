@@ -87,32 +87,17 @@ app.get('/spotify', async (req, res) => {
 });
 
 // PUT /spotify/pause: Stop the currently playing song
-// app.put('/spotify/pause', async (req, res) => {
-//   try {
-//     await refreshAccessToken();
-//     await spotifyApi.pause();
-//     res.json({ message: 'Playback paused.' });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// });
-
-
-// -----------------
-
-
-app.put('/spotify/pause', async (req, res) => {
+app.get('/spotify/pause', async (req, res) => {
   try {
     await refreshAccessToken();
     await spotifyApi.pause();
     res.json({ message: 'Playback paused.' });
   } catch (error) {
-    console.log("Pause error:", error.body || error);
     res.status(500).json({ error: error.message });
   }
 });
 
-// --------------------------------
+
 
 
 
